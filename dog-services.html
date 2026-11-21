@@ -9,8 +9,9 @@
     <link rel="apple-touch-icon" href="/logo.png">
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- PayPal SDK -->
-    <script src="https://www.paypal.com/sdk/js?client-id=ASELLUZO-xAa75myiEEqAKDNuoflZp1tONYi5eZTJxqPM8OaqNY7i30D8lhKf7e7RcFZQEFu1gvLLX32&currency=USD&disable-funding=credit,card"></script>
+    <!-- PayPal SDK — one-time orders (First Time Cleanup).
+         Monthly plans use PayPal hosted Subscribe buttons (see main.js). -->
+    <script src="https://www.paypal.com/sdk/js?client-id=ASELLUZO-xAa75myiEEqAKDNuoflZp1tONYi5eZTJxqPM8OaqNY7i30D8lhKf7e7RcFZQEFu1gvLLX32&currency=USD&intent=capture&disable-funding=credit,card" data-namespace="paypalOrder"></script>
 </head>
 <body>
     <header id="header">
@@ -63,33 +64,33 @@
                     <div class="price-card popular">
                         <div class="popular-badge">Best Seller</div>
                         <h3>2 Dogs</h3>
-                        <div class="price">$50<span>/mo</span></div>
-                        <ul>
-                            <li><i class="fas fa-check"></i> 1 Visit Per Week</li>
-                            <li><i class="fas fa-check"></i> Full Perimeter Sweep</li>
-                            <li><i class="fas fa-check"></i> Waste Hauled Away</li>
-                        </ul>
-                        <a href="javascript:void(0)" class="btn btn-primary checkout-btn" data-price="50" data-plan="2 Dogs - Weekly Service" style="width: 100%;">Buy Now</a>
-                    </div>
-                    <div class="price-card">
-                        <h3>3 Dogs</h3>
                         <div class="price">$55<span>/mo</span></div>
                         <ul>
                             <li><i class="fas fa-check"></i> 1 Visit Per Week</li>
                             <li><i class="fas fa-check"></i> Full Perimeter Sweep</li>
                             <li><i class="fas fa-check"></i> Waste Hauled Away</li>
                         </ul>
-                        <a href="javascript:void(0)" class="btn btn-primary checkout-btn" data-price="55" data-plan="3 Dogs - Weekly Service" style="width: 100%;">Buy Now</a>
+                        <a href="javascript:void(0)" class="btn btn-primary checkout-btn" data-price="55" data-plan="2 Dogs - Weekly Service" style="width: 100%;">Buy Now</a>
                     </div>
                     <div class="price-card">
-                        <h3>4 Dogs</h3>
-                        <div class="price">$60<span>/mo</span></div>
+                        <h3>3 Dogs</h3>
+                        <div class="price">$65<span>/mo</span></div>
                         <ul>
                             <li><i class="fas fa-check"></i> 1 Visit Per Week</li>
                             <li><i class="fas fa-check"></i> Full Perimeter Sweep</li>
                             <li><i class="fas fa-check"></i> Waste Hauled Away</li>
                         </ul>
-                        <a href="javascript:void(0)" class="btn btn-primary checkout-btn" data-price="60" data-plan="4 Dogs - Weekly Service" style="width: 100%;">Buy Now</a>
+                        <a href="javascript:void(0)" class="btn btn-primary checkout-btn" data-price="65" data-plan="3 Dogs - Weekly Service" style="width: 100%;">Buy Now</a>
+                    </div>
+                    <div class="price-card">
+                        <h3>4 Dogs</h3>
+                        <div class="price">$75<span>/mo</span></div>
+                        <ul>
+                            <li><i class="fas fa-check"></i> 1 Visit Per Week</li>
+                            <li><i class="fas fa-check"></i> Full Perimeter Sweep</li>
+                            <li><i class="fas fa-check"></i> Waste Hauled Away</li>
+                        </ul>
+                        <a href="javascript:void(0)" class="btn btn-primary checkout-btn" data-price="75" data-plan="4 Dogs - Weekly Service" style="width: 100%;">Buy Now</a>
                     </div>
                 </div>
 
@@ -99,43 +100,43 @@
                 <div class="price-grid">
                     <div class="price-card">
                         <h3>1 Dog</h3>
-                        <div class="price">$65<span>/mo</span></div>
+                        <div class="price">$85<span>/mo</span></div>
                         <ul>
                             <li><i class="fas fa-check"></i> 2 Visits Per Week</li>
                             <li><i class="fas fa-check"></i> Full Perimeter Sweep</li>
                             <li><i class="fas fa-check"></i> Waste Hauled Away</li>
                         </ul>
-                        <a href="javascript:void(0)" class="btn btn-primary checkout-btn" data-price="65" data-plan="1 Dog - Twice Weekly" style="width: 100%;">Buy Now</a>
+                        <a href="javascript:void(0)" class="btn btn-primary checkout-btn" data-price="85" data-plan="1 Dog - Twice Weekly" style="width: 100%;">Buy Now</a>
                     </div>
                     <div class="price-card">
                         <h3>2 Dogs</h3>
-                        <div class="price">$70<span>/mo</span></div>
+                        <div class="price">$95<span>/mo</span></div>
                         <ul>
                             <li><i class="fas fa-check"></i> 2 Visits Per Week</li>
                             <li><i class="fas fa-check"></i> Full Perimeter Sweep</li>
                             <li><i class="fas fa-check"></i> Waste Hauled Away</li>
                         </ul>
-                        <a href="javascript:void(0)" class="btn btn-primary checkout-btn" data-price="70" data-plan="2 Dogs - Twice Weekly" style="width: 100%;">Buy Now</a>
+                        <a href="javascript:void(0)" class="btn btn-primary checkout-btn" data-price="95" data-plan="2 Dogs - Twice Weekly" style="width: 100%;">Buy Now</a>
                     </div>
                     <div class="price-card">
                         <h3>3 Dogs</h3>
-                        <div class="price">$75<span>/mo</span></div>
+                        <div class="price">$105<span>/mo</span></div>
                         <ul>
                             <li><i class="fas fa-check"></i> 2 Visits Per Week</li>
                             <li><i class="fas fa-check"></i> Full Perimeter Sweep</li>
                             <li><i class="fas fa-check"></i> Waste Hauled Away</li>
                         </ul>
-                        <a href="javascript:void(0)" class="btn btn-primary checkout-btn" data-price="75" data-plan="3 Dogs - Twice Weekly" style="width: 100%;">Buy Now</a>
+                        <a href="javascript:void(0)" class="btn btn-primary checkout-btn" data-price="105" data-plan="3 Dogs - Twice Weekly" style="width: 100%;">Buy Now</a>
                     </div>
                     <div class="price-card">
                         <h3>4 Dogs</h3>
-                        <div class="price">$80<span>/mo</span></div>
+                        <div class="price">$115<span>/mo</span></div>
                         <ul>
                             <li><i class="fas fa-check"></i> 2 Visits Per Week</li>
                             <li><i class="fas fa-check"></i> Full Perimeter Sweep</li>
                             <li><i class="fas fa-check"></i> Waste Hauled Away</li>
                         </ul>
-                        <a href="javascript:void(0)" class="btn btn-primary checkout-btn" data-price="80" data-plan="4 Dogs - Twice Weekly" style="width: 100%;">Buy Now</a>
+                        <a href="javascript:void(0)" class="btn btn-primary checkout-btn" data-price="115" data-plan="4 Dogs - Twice Weekly" style="width: 100%;">Buy Now</a>
                     </div>
                 </div>
 
