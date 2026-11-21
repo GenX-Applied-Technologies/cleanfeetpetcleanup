@@ -268,13 +268,13 @@ function renderSubscribeButton(planName) {
 // Handle Payment Success Message on Contact Page
 const urlParams = new URLSearchParams(window.location.search);
 if (urlParams.get('payment') === 'success') {
-    const contactHeader = document.querySelector('.contact-hero h1') || document.querySelector('.section-title h2');
-    const contactSub = document.querySelector('.contact-hero p') || document.querySelector('.section-title p');
+    // contact.html's hero is <section class="page-hero"><div class="container"><h1>…</h1><p>…</p>
+    const contactHeader = document.querySelector('.page-hero h1') || document.querySelector('.contact-hero h1') || document.querySelector('.section-title h2');
+    const contactSub = document.querySelector('.page-hero h1 ~ p') || document.querySelector('.contact-hero p') || document.querySelector('.section-title p');
 
     if (contactHeader) contactHeader.innerHTML = 'Payment <span>Received!</span>';
     if (contactSub) {
         contactSub.innerHTML = `<strong style="color: var(--primary); display: block; margin-bottom: 1rem; font-size: 1.2rem;">Thank you for your purchase!</strong> Please fill out the form below with your address and service details to complete your setup.`;
-        contactSub.style.color = 'var(--secondary)';
     }
 
     // Scroll to form
