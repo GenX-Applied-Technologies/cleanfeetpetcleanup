@@ -18,6 +18,8 @@ export default defineConfig({
         blog: resolve(__dirname, 'blog/index.html'),
         blog1: resolve(__dirname, 'blog/why-professional-scooping-beats-diy.html'),
         blog2: resolve(__dirname, 'blog/hidden-dangers-of-pet-waste.html'),
+        blog3: resolve(__dirname, 'blog/winter-dog-poop-cleanup-omaha.html'),
+        blog4: resolve(__dirname, 'blog/pooper-scooper-cost-omaha.html'),
 
         privacy: resolve(__dirname, 'privacy-policy.html'),
         faqs: resolve(__dirname, 'faqs.html'),
