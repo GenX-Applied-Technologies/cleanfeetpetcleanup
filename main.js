@@ -136,15 +136,28 @@ const PAYPAL_SUBSCRIBE_BUTTONS = {
     "2 Cats Litter Service":   "3T2658M2K2PEA", // $85 / month
 };
 
-// Plans that are charged ONCE (not a subscription).
-const ONE_TIME_PLANS = new Set(["First Time Cleanup"]);
+/*
+ * Plans booked by requesting an invoice instead of paying online.
+ * The request is emailed to the business; the owner creates and sends a
+ * PayPal invoice manually for the right amount.
+ */
+const INVOICE_PLANS = new Set(["First Time Cleanup"]);
+
+// First Time Cleanup: base price comes from the card's data-price ($65);
+// each additional dog adds this much. Shown to the customer as an ESTIMATE
+// only -- the owner sets the real amount on the invoice.
+const CLEANUP_EXTRA_DOG_PRICE = 10;
+const DOG_COUNT_OPTIONS = ['1', '2', '3', '4', '5+'];
+const BUSINESS_PHONE = '(402) 320-3824';
+const LEADS_EMAIL_ENDPOINT = 'https://formsubmit.co/ajax/cleanfeetpetcleanup@gmail.com';
 
 function openPaymentModal(planName, price) {
     if (!paymentModal) return;
-    modalTitle.textContent = 'Complete Your Order';
-    if (ONE_TIME_PLANS.has(planName)) {
-        modalDesc.textContent = `${planName} — $${price} (one-time)`;
+    if (INVOICE_PLANS.has(planName)) {
+        modalTitle.textContent = 'Book Your Initial Clean';
+        modalDesc.textContent = `${planName} — $${price} + $${CLEANUP_EXTRA_DOG_PRICE} per additional dog. We'll email you an invoice.`;
     } else {
+        modalTitle.textContent = 'Complete Your Order';
         modalDesc.textContent = `${planName} — $${price}/month · billed monthly, cancel anytime`;
     }
     paymentModal.classList.add('active');
@@ -166,24 +179,6 @@ window.addEventListener('click', (e) => {
     if (e.target === paymentModal) closePaymentModal();
 });
 
-function showPaymentSuccess(planName, firstName) {
-    modalTitle.textContent = 'Payment Successful!';
-    modalDesc.textContent = 'Redirecting you to provide your service details...';
-    const greeting = firstName ? `Thank you, ${firstName}!` : 'Thank you!';
-    paypalContainer.innerHTML = `
-        <div style="padding: 2rem; color: var(--secondary); text-align: center;">
-            <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--primary); margin-bottom: 1.5rem;"></i>
-            <p style="font-size: 1.2rem; font-weight: 600;">${greeting}</p>
-            <p style="margin-top: 0.5rem; opacity: 0.8;">One moment while we redirect you...</p>
-        </div>
-    `;
-    setTimeout(() => {
-        const params = new URLSearchParams({ payment: 'success', plan: planName });
-        if (firstName) params.set('name', firstName);
-        window.location.href = `/contact.html?${params.toString()}`;
-    }, 2500);
-}
-
 function showPaypalMessage(message) {
     if (paypalContainer) {
         paypalContainer.innerHTML = `<p style="color: #b00020; text-align: center; padding: 1rem;">${message}</p>`;
@@ -193,50 +188,104 @@ function showPaypalMessage(message) {
 function renderPayPalButton(price, planName) {
     if (paypalContainer) paypalContainer.innerHTML = '';
 
-    const isOneTime = ONE_TIME_PLANS.has(planName);
+    // One-time clean: customer requests an invoice; the owner bills them.
+    if (INVOICE_PLANS.has(planName)) {
+        renderInvoiceRequestForm(planName, Number(price));
+        return;
+    }
 
     // Recurring monthly plans use PayPal hosted Subscribe buttons
     // (the monthly price and billing cycle are set inside PayPal).
-    if (!isOneTime) {
-        renderSubscribeButton(planName);
-        return;
-    }
+    renderSubscribeButton(planName);
+}
 
-    // One-time payments use the PayPal JS SDK, loaded on the page
-    // with data-namespace="paypalOrder" (intent=capture).
-    const sdk = window.paypalOrder;
-    if (!sdk) {
-        console.error('PayPal SDK not loaded for one-time orders');
-        showPaypalMessage('Payment is temporarily unavailable. Please refresh, or contact us and we\'ll get you set up.');
-        return;
-    }
+// null means "5+ dogs": the owner confirms the price on the invoice.
+function estimateCleanupTotal(basePrice, dogCount) {
+    if (!/^[1-4]$/.test(dogCount)) return null;
+    return basePrice + (Number(dogCount) - 1) * CLEANUP_EXTRA_DOG_PRICE;
+}
 
-    // One-time payment (e.g. First Time Cleanup)
-    if (isOneTime) {
-        sdk.Buttons({
-            createOrder: function (data, actions) {
-                return actions.order.create({
-                    purchase_units: [{
-                        description: planName,
-                        amount: { currency_code: "USD", value: String(price) }
-                    }]
-                });
-            },
-            onApprove: function (data, actions) {
-                return actions.order.capture().then(function (details) {
-                    const firstName = details && details.payer && details.payer.name
-                        ? details.payer.name.given_name : '';
-                    showPaymentSuccess(planName, firstName);
-                });
-            },
-            onError: function (err) {
-                console.error('PayPal Error:', err);
-                alert('Something went wrong with the payment. Please try again.');
-            }
-        }).render('#paypal-button-container');
-        return;
-    }
+const dogLabel = (dogCount) => `${dogCount} ${dogCount === '1' ? 'Dog' : 'Dogs'}`;
 
+function renderInvoiceRequestForm(planName, basePrice) {
+    const dogOptions = DOG_COUNT_OPTIONS
+        .map((n) => `<option value="${n}">${dogLabel(n)}</option>`)
+        .join('');
+
+    paypalContainer.innerHTML = `
+        <form class="invoice-request-form" style="text-align: left;">
+            <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <input type="text" name="name" class="form-input" placeholder="Full Name" autocomplete="name" required>
+            <input type="email" name="email" class="form-input" placeholder="Email (your invoice is sent here)" autocomplete="email" required>
+            <input type="tel" name="phone" class="form-input" placeholder="Phone Number" autocomplete="tel" required>
+            <input type="text" name="address" class="form-input" placeholder="Service Address" autocomplete="street-address" required>
+            <select name="dogs" class="form-input" aria-label="Number of dogs" required>${dogOptions}</select>
+            <textarea name="notes" class="form-input" rows="2" placeholder="Gate code, yard notes, preferred day (optional)"></textarea>
+            <p class="invoice-estimate" style="text-align: center; font-weight: 600; margin: 0.25rem 0 1rem;"></p>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Request Invoice</button>
+        </form>
+    `;
+
+    const form = paypalContainer.querySelector('form');
+    const estimate = form.querySelector('.invoice-estimate');
+    const updateEstimate = () => {
+        const total = estimateCleanupTotal(basePrice, form.elements.dogs.value);
+        estimate.textContent = total === null
+            ? 'For 5+ dogs, we\'ll confirm your price on the invoice.'
+            : `Estimated total: $${total} (one-time)`;
+    };
+    form.elements.dogs.addEventListener('change', updateEstimate);
+    updateEstimate();
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        submitInvoiceRequest(form, planName, basePrice);
+    });
+}
+
+async function submitInvoiceRequest(form, planName, basePrice) {
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+    submitBtn.disabled = true;
+
+    const formData = new FormData(form);
+    const dogs = formData.get('dogs');
+    const total = estimateCleanupTotal(basePrice, dogs);
+    formData.append('service', planName);
+    formData.append('estimated_total', total === null ? 'Confirm price (5+ dogs)' : `$${total}`);
+    formData.append('_subject', `Invoice request: ${planName}, ${dogLabel(dogs)} - cleanfeetpetcleanup.com`);
+    formData.append('_template', 'table');
+    const customerEmail = formData.get('email');
+    if (customerEmail) formData.append('_replyto', customerEmail);
+
+    try {
+        const response = await fetch(LEADS_EMAIL_ENDPOINT, {
+            method: 'POST',
+            body: formData,
+            headers: { 'Accept': 'application/json' },
+        });
+        const data = await response.json().catch(() => ({}));
+        // Same check as the contact form: FormSubmit only reports
+        // success === "true" once the inbox has activated the form.
+        const delivered = response.ok && (data.success === 'true' || data.success === true);
+        if (!delivered) throw new Error('Invoice request was not delivered');
+
+        modalTitle.textContent = 'Request Sent!';
+        modalDesc.textContent = `${planName}, ${dogLabel(dogs)}. We'll email your invoice shortly.`;
+        paypalContainer.innerHTML = `
+            <div style="padding: 1.5rem; text-align: center;">
+                <i class="fas fa-check-circle" style="font-size: 3.5rem; color: var(--primary); margin-bottom: 1rem;"></i>
+                <p style="font-weight: 600;">Thanks! Watch your inbox for your invoice.</p>
+                <p style="margin-top: 0.5rem; opacity: 0.8;">Questions? Call or text ${BUSINESS_PHONE}.</p>
+            </div>
+        `;
+    } catch (err) {
+        console.error('Invoice request error:', err);
+        alert(`Sorry, we couldn't send your request. Please try again, or call or text ${BUSINESS_PHONE}.`);
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+    }
 }
 
 // Renders a form that sends the customer to PayPal's secure hosted checkout
